@@ -1,0 +1,5 @@
+tuple1 = input("Введите кортеж положительных чисел: ")
+list = tuple1.split(",")
+tuple = tuple(list)
+res = int(''.join(map(str, tuple)))
+print(str(res))
