@@ -331,6 +331,9 @@ You should add new optional argument `--colorize`, that will print the result of
 
 *If the argument is not provided, the utility should work like in the previous iterations.*
 
+![image](https://user-images.githubusercontent.com/87867142/138593891-d3751de7-9c6e-47d0-b3cf-a6bdaba21b51.png)
+
+
 > Note: Take a look at the [colorize](https://pypi.org/project/colorize/) library
 
 
