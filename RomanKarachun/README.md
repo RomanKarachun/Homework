@@ -1,4 +1,4 @@
-# The final task of Roman Karachun
+# The final task of Roman Karachun (with examples)
 
 ## Introduction to Python. Final task.
 You are proposed to implement Python RSS-reader using python 3.9.
@@ -281,6 +281,28 @@ Date: 2021-10-23T07:08:33Z
 Detail: 2021-10-23 07:08:33
 Read more: https://s.yimg.com/uu/api/res/1.2/MhcXwchBo0tsDS4ZXYpxoA--~B/aD02MDA7dz05NTg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/the_huffington_post_584/b6435d8564a57bf5392dabe3b8e44df6
 
+
+```
+```
+C:\Users\user\rss>rss_reader.py "https://news.yahoo.com/rss/" --date 20211023  --limit 2 --verbose
+INFO: 24.10.2021 15:10:20 - 2 news items retrieved from cache
+INFO: 24.10.2021 15:10:20 - Data converted to text string
+
+Cached news items for date 'October 23, 2021'
+
+Title: The story of Carol and Karen: Two experimental Facebook accounts show how the company helped divide America
+Channel: Yahoo News - Latest News & Headlines
+Channel URL: https://news.yahoo.com/rss/
+Date: 2021-10-23T08:00:10Z
+Detail: 2021-10-23 08:00:10
+Read more: https://s.yimg.com/uu/api/res/1.2/4SS3v7Hgt9GDo.0tfbndHQ--~B/aD0zNzcxO3c9NDM0ODthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/usa_today_tech_153/6f11e68ab704af3b5cc338fa9cc52aa7
+
+Title: Rep. Eric Swalwell Shares Chilling Voicemail Sent To Him By Tucker Carlson Fan
+Channel: Yahoo News - Latest News & Headlines
+Channel URL: https://news.yahoo.com/rss/
+Date: 2021-10-23T07:08:33Z
+Detail: 2021-10-23 07:08:33
+Read more: https://s.yimg.com/uu/api/res/1.2/MhcXwchBo0tsDS4ZXYpxoA--~B/aD02MDA7dz05NTg7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/the_huffington_post_584/b6435d8564a57bf5392dabe3b8e44df6
 
 ```
 ## [Iteration 4] Format converter.
