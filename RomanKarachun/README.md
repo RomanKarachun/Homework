@@ -1,4 +1,4 @@
-# The final task of Roman Karachun (with examples)
+# The final task of Roman Karachun (WITH EXAMPLES)
 
 ## Introduction to Python. Final task.
 You are proposed to implement Python RSS-reader using python 3.9.
@@ -330,6 +330,8 @@ be printed to stdout, and converted file should contain news in normal format.
 You should add new optional argument `--colorize`, that will print the result of the utility in colorized mode.
 
 *If the argument is not provided, the utility should work like in the previous iterations.*
+
+### This function in my program only works in the Python console!!!
 
 ![image](https://user-images.githubusercontent.com/87867142/138593891-d3751de7-9c6e-47d0-b3cf-a6bdaba21b51.png)
 
