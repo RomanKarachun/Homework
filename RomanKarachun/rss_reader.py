@@ -10,7 +10,6 @@ import re
 """This module provides regular expression matching operations similar to those found in Perl."""
 import sqlite3
 """DB-API 2.0 interface for SQLite databases"""
-import sys
 """This module provides access to some variables used or maintained 
 by the interpreter and to functions that interact strongly with the interpreter. 
 It is always available."""
@@ -18,11 +17,6 @@ from io import StringIO
 """The StringIO module is an in-memory file-like object. 
 This object can be used as input or output to 
 the most function that would expect a standard file object."""
-
-"""
-from socket import gaierror
-Eliminating gai-errors
-"""
 from urllib.parse import urlsplit, urlunsplit, quote
 """This module defines a standard interface to break Uniform Resource Locator (URL) strings up 
 in components (addressing scheme, network location, path etc.), to combine the components back 
@@ -39,26 +33,21 @@ from datetime import datetime
 """The datetime module supplies classes for manipulating dates and times."""
 import html
 """For output in the HTML-format"""
-
-"""
-from xhtml2pdf import pisa
-To translate from HTML-format to PDF-format
-"""
+from fpdf import FPDF
+"""For output in the PDF-format"""
 
 def parse_args():
     """Adding arguments"""
     parser = argparse.ArgumentParser(prog="rss_reader.py", description="Pure Python command-line RSS reader.")
-    parser.add_argument("--version", action="version", version="Version 1.4", help="Print version info")
+    parser.add_argument("--version", action="version", version="Version 1.5", help="Print version info")
     parser.add_argument("--json", action="store_true", help="Print result as JSON in stdout")
     parser.add_argument("--verbose", action="store_true", help="Outputs verbose status messages")
     parser.add_argument("--limit", type=int, default=None, help="Limit news topics if this parameter provided")
     parser.add_argument("source", nargs="?", default=None, help="Specify correctly URL")
     parser.add_argument("--date", default=None, help="It should take a date in %Y%m%d format")
     parser.add_argument('--colorize', action='store_true', help="Color output")
-    """
-    parser.add_argument("--to-pdf", action='store_true', help="Output in PDF format")
-    parser.add_argument("--to-html", action='store_true', help="Output in HTML format")
-    """
+    parser.add_argument("--to-pdf", dest='pdf', default=False, action='store_true', help="Output in PDF format")
+    parser.add_argument("--to-html", dest='html', default=False, action='store_true', help="Output in HTML format")
     x = parser.parse_args()
     if x.limit is not None and x.limit < 1:
         parser.error("--limit LIMIT is specified incorrectly")
@@ -240,13 +229,12 @@ def dict_to_string(news, json_flag, date, colors: Colors):
                     string_obj.write(f"{colors.red}Read more: {news[item]['Link']}\n")
                 string_obj.write("\n")
         final_string = string_obj.getvalue()[:-1]
-        logging.info("Data converted to text string")
     return final_string
 
-CACHE_DB = os.path.join(os.path.split(__file__)[0], "cache.db")
+INFO = os.path.join(os.path.split(__file__)[0], "info.db")
 def create_sql_table():
     """Creating a SQL-table"""
-    con = sqlite3.connect(CACHE_DB)
+    con = sqlite3.connect(INFO)
     cur = con.cursor()
     cur.execute("CREATE TABLE news ("
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -261,7 +249,7 @@ def create_sql_table():
                 "UNIQUE(channel, url, title, date, desc, image, link));")
     con.close()
 
-def parse_date(date, title):
+def parse_date(date):
     """Date format conversion p.1"""
     date_as_date = None
     date_formats = ["datetime.strptime(date, '%Y-%m-%d %H:%M:%S')"]
@@ -272,8 +260,7 @@ def parse_date(date, title):
         except ValueError:
             continue
     if date_as_date is None:
-        date_as_date = datetime(1900, 1, 1)
-        logging.warning(f"No date provided or wrong date format in news '{title}'. Date set to '19000101'.")
+        logging.warning(f"Incorrectly date")
     return date_as_date
 def reformat_date(date):
     """Date format conversion p.2"""
@@ -283,7 +270,7 @@ def reformat_date(date):
 
 def store_to_sql(news):
     """Storing data in a SQL-table"""
-    con = sqlite3.connect(CACHE_DB)
+    con = sqlite3.connect(INFO)
     cur = con.cursor()
     channel = news["Channel"]["Title"]
     url = news["Channel"]["URL"]
@@ -291,12 +278,12 @@ def store_to_sql(news):
         if item.startswith("News"):
             title = news[item]["Title"]
             date = news[item]["Date"]
-            date_as_date = parse_date(date, title)
+            date_as_date = parse_date(date)
             desc = news[item]["Description"]
             image = news[item]["Image"]
             link = news[item]["Link"]
             try:
-                cur.execute("INSERT INTO news(channel, title, url, date, date_as_date, desc, image, link) "
+                cur.execute("INSERT INTO news(channel, url, title, date, date_as_date, desc, image, link) "
                             "VALUES(?, ?, ?, ?, ?, ?, ?, ?);",
                             (channel, url, title, date, date_as_date, desc, image, link))
             except sqlite3.IntegrityError:
@@ -315,7 +302,7 @@ def store_to_sql(news):
 def retrieve_from_sql(date, source, limit):
     """Table Output"""
     source = "%" if source is None else source
-    con = sqlite3.connect(CACHE_DB)
+    con = sqlite3.connect(INFO)
     cur = con.cursor()
     if limit is not None:
         cur.execute("SELECT * FROM news WHERE url LIKE ? AND STRFTIME('%Y%m%d', date_as_date)=? "
@@ -345,6 +332,64 @@ def retrieve_from_sql(date, source, limit):
         logging.error(f"No information found in cache for '{date}'")
     return news
 
+def to_html(self):
+    limit = self.limit
+    if (limit == None or limit > len(self.feed) or limit < 1):
+        limit = len(self.feed)
+    news = ''
+    if self.channel:
+        news += f'{self.channel} \n\n'
+    if len(self.feed) == 0:
+        print('No articles')
+    html = """
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+        </head>
+        <body>
+    """
+    for article in self.feed[:limit]:
+        title_content = f"\t\t\t<h3>{article['title']}<h3>\n"
+        date_content = f"\t\t\t<p>PubDate: {article['pubDate']}</p>\n"
+        link_content = f"\t\t\t<a href='{article['link']}'>Source</a>\n"
+        descr_content = f"\t\t\t"
+
+        article_content = '\t\t<div>\n'
+        article_content += title_content + date_content + link_content + descr_content + '</div>\n'
+        html += article_content
+    html += '    </body>\n</html>'
+
+    with open('HTML.html', 'w') as doc:
+        doc.write(html)
+
+def to_pdf(self, path=None):
+    limit = self.limit
+    if (limit == None or limit > len(self.feed) or limit < 1):
+        limit = len(self.feed)
+    news = ''
+    if self.channel:
+        news += f'{self.channel} \n\n'
+    if len(self.feed) == 0:
+        print('No articles')
+
+    for article in self.feed[:limit]:
+        news += f"Title: {article['title']}\nDate: {article['pubDate']}\nLink: {article['link']}\n"
+        if article['description']:
+            news += f"Description: {article['description']}"
+        news += f'\n'
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(200, 10, txt=news)
+    if path:
+        pdf.output(path)
+    else:
+        pdf.output('PDF.pdf')
+
 def main():
     """Final output of the program"""
     x = parse_args()
@@ -353,7 +398,7 @@ def main():
         colors = Colors(True)
     else:
         colors = Colors(False)
-    if not os.path.exists(CACHE_DB):
+    if not os.path.exists(INFO):
         create_sql_table()
     if x.date is not None:
         news = retrieve_from_sql(x.date, x.source, x.limit)
