@@ -113,7 +113,7 @@ Read more: https://news.yahoo.com/ex-soldiers-offered-mercenaries-10-084247990.h
 2) User should be able to use `--version` option without specifying RSS URL. For example:
 ```
 > C:\Users\user\rss>rss_reader.py --version
-"Version 1.4"
+"Version 1.5"
 
 ```
 3) The version is supposed to change with every iteration.
