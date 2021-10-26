@@ -333,6 +333,7 @@ def retrieve_from_sql(date, source, limit):
     return news
 
 def to_html(self):
+    """Conversion to HTML"""
     limit = self.limit
     if (limit == None or limit > len(self.feed) or limit < 1):
         limit = len(self.feed)
@@ -367,6 +368,7 @@ def to_html(self):
         doc.write(html)
 
 def to_pdf(self, path=None):
+    """Conversion to PDF"""
     limit = self.limit
     if (limit == None or limit > len(self.feed) or limit < 1):
         limit = len(self.feed)
@@ -383,8 +385,8 @@ def to_pdf(self, path=None):
         news += f'\n'
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(200, 10, txt=news)
+    pdf.set_font("Calibre", size=10)
+    pdf.multi_cell(100, 10, txt=news)
     if path:
         pdf.output(path)
     else:
