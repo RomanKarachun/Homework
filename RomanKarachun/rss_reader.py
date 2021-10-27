@@ -340,8 +340,6 @@ def to_html(self):
     news = ''
     if self.channel:
         news += f'{self.channel} \n\n'
-    if len(self.feed) == 0:
-        print('No articles')
     html = """
     <!DOCTYPE html>
     <html lang="en">
@@ -357,12 +355,12 @@ def to_html(self):
         title_content = f"\t\t\t<h3>{article['title']}<h3>\n"
         date_content = f"\t\t\t<p>PubDate: {article['pubDate']}</p>\n"
         link_content = f"\t\t\t<a href='{article['link']}'>Source</a>\n"
-        descr_content = f"\t\t\t"
+        desc_content = f"\t\t\t"
 
         article_content = '\t\t<div>\n'
-        article_content += title_content + date_content + link_content + descr_content + '</div>\n'
+        article_content += title_content + date_content + link_content + desc_content + '</div>\n'
         html += article_content
-    html += '    </body>\n</html>'
+    html += '</body>\n</html>'
 
     with open('HTML.html', 'w') as doc:
         doc.write(html)
@@ -375,8 +373,6 @@ def to_pdf(self, path=None):
     news = ''
     if self.channel:
         news += f'{self.channel} \n\n'
-    if len(self.feed) == 0:
-        print('No articles')
 
     for article in self.feed[:limit]:
         news += f"Title: {article['title']}\nDate: {article['pubDate']}\nLink: {article['link']}\n"
@@ -385,8 +381,6 @@ def to_pdf(self, path=None):
         news += f'\n'
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Calibre", size=10)
-    pdf.multi_cell(100, 10, txt=news)
     if path:
         pdf.output(path)
     else:
